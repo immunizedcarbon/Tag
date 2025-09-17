@@ -146,6 +146,16 @@ class DipClient:
 # ----------------------
 # Gemini Client Wrapper
 # ----------------------
+ALLOWED_GEMINI_RESPONSE_MIME_TYPES = {
+    "text/plain",
+    "application/json",
+    "application/xml",
+    "application/yaml",
+    "text/x.enum",
+}
+DEFAULT_GEMINI_MIME_TYPE = "text/plain"
+
+
 class GeminiClient:
     def __init__(self, api_key: str, model: str):
         self.api_key = api_key.strip()
@@ -156,7 +166,14 @@ class GeminiClient:
             )
         self.client = genai.Client(api_key=self.api_key) if self.api_key else genai.Client()
 
-    def generate(self, prompt: str, system_instruction: str, mime: str = "text/markdown") -> str:
+    def generate(
+        self,
+        prompt: str,
+        system_instruction: str,
+        mime: str = DEFAULT_GEMINI_MIME_TYPE,
+    ) -> str:
+        if mime not in ALLOWED_GEMINI_RESPONSE_MIME_TYPES:
+            mime = DEFAULT_GEMINI_MIME_TYPE
         try:
             cfg = (
                 genai_types.GenerateContentConfig(
